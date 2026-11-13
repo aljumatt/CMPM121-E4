@@ -2,12 +2,14 @@ import Phaser from "phaser";
 import {
   type Actor,
   type Arena,
+  Boss,
   Bullet,
+  Enemy,
   HEIGHT,
   Player,
+  PowerUp,
   WIDTH,
 } from "./actors.ts";
-import { ShmupBoss, ShmupPowerUp, ShmupPrefabSprite } from "./prefab.ts";
 import type { Hud } from "./hud.ts";
 import type { LaunchOptions } from "./main.ts";
 import { AutoPilot, KeyboardPilot, type Pilot } from "./pilots.ts";
@@ -21,10 +23,8 @@ const TICK_MS = 1000 / 60;
 const START_LIVES = 3;
 const BOSS_WARNING_TICKS = 200;
 const VICTORY_TICKS = 180;
-/** Seconds of idling before the title hands the ship to the autopilot. */
 const IDLE_SECONDS = 8;
 
-/** Lines of the closing story and when (seconds) each appears. */
 const STORY: [number, string][] = [
   [0.8, "The Warden's lights go dark, one ring at a time."],
   [4.2, "Behind you, five sectors of open sky."],
@@ -34,10 +34,6 @@ const WARP_AT = 9;
 const CREDITS_AT = 11;
 const RETURN_AT = 18;
 
-/**
- * The whole game. mode is one of "title", "play", "attract" or "cutscene";
- * switching modes fades out and restarts this scene in the new mode.
- */
 export class GameScene extends Phaser.Scene implements Arena {
   mode = "title";
   rng!: Rng;
@@ -46,13 +42,13 @@ export class GameScene extends Phaser.Scene implements Arena {
   private run;
   private pilot!: Pilot;
   private backdrop!: Backdrop;
-  enemies: ShmupPrefabSprite[] = [];
+  enemies: Enemy[] = [];
   private shots: Bullet[] = [];
   private bullets: Bullet[] = [];
-  private pickups: ShmupPowerUp[] = [];
+  private pickups: PowerUp[] = [];
   private sector = -1;
   private sectorStart = 0;
-  private boss: ShmupBoss | null = null;
+  private boss: Boss | null = null;
   private bossDueAt = 0;
   private victoryAt = 0;
   private gameOver = false;
@@ -71,7 +67,6 @@ export class GameScene extends Phaser.Scene implements Arena {
   }
 
   init(data: { mode?: string }): void {
-    // remember whether the cutscene follows a self-play run
     if (data.mode === "cutscene") {
       this.cutsceneAfterDemo = this.mode === "attract";
     }
@@ -104,7 +99,6 @@ export class GameScene extends Phaser.Scene implements Arena {
   }
 
   create(): void {
-    // first run only: draw every texture and synthesize every sound
     if (!this.textures.exists("player")) {
       makeTextures(this);
       loadSounds(this);
@@ -312,7 +306,7 @@ export class GameScene extends Phaser.Scene implements Arena {
 
   summon(_kind: string, x: number, y: number): void {
     this.enemies.push(
-      new ShmupPrefabSprite(
+      new Enemy(
         this,
         x,
         y,
@@ -408,7 +402,7 @@ export class GameScene extends Phaser.Scene implements Arena {
 
   private startBoss(): void {
     this.bossDueAt = 0;
-    this.boss = new ShmupBoss(this);
+    this.boss = new Boss(this);
     this.boss.enableFilters();
     this.boss.filters?.internal.addGlow(TINTS.boss, 4, 0, 1);
     this.enemies.push(this.boss);
@@ -446,7 +440,7 @@ export class GameScene extends Phaser.Scene implements Arena {
     }
   }
 
-  private destroyEnemy(enemy: ShmupPrefabSprite): void {
+  private destroyEnemy(enemy: Enemy): void {
     enemy.setActive(false);
     this.run.score += enemy.score;
     this.run.kills++;
@@ -459,7 +453,7 @@ export class GameScene extends Phaser.Scene implements Arena {
       const kind = this.player.power < 3 && this.rng.chance(0.5)
         ? "spread"
         : "shield";
-      this.pickups.push(new ShmupPowerUp(this, enemy.x, enemy.y, kind));
+      this.pickups.push(new PowerUp(this, enemy.x, enemy.y, kind));
     }
   }
 
@@ -495,7 +489,7 @@ export class GameScene extends Phaser.Scene implements Arena {
     });
   }
 
-  private defeatBoss(boss: ShmupBoss): void {
+  private defeatBoss(boss: Boss): void {
     this.run.bossDefeated = true;
     this.victoryAt = this.now + VICTORY_TICKS;
     this.hud.setBoss(0);

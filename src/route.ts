@@ -1,4 +1,4 @@
-import { ShmupPrefabSprite } from "./prefab.ts";
+import { Enemy } from "./actors.ts";
 import type { GameScene } from "./game.ts";
 
 export interface WaveConfig {
@@ -54,7 +54,7 @@ export function spawnWave(scene: GameScene, t: number, wave: WaveConfig): void {
     }
 
     if (t === spawnTime) {
-      const enemy = new ShmupPrefabSprite(
+      const enemy = new Enemy(
         scene,
         x,
         y,
