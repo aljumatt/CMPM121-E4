@@ -19,39 +19,6 @@ export interface SectorConfig {
   waves: WaveConfig[];
 }
 
-function getEnemyConfig(kind: string) {
-  switch (kind) {
-    case "drone":
-      return {
-        hp: 2,
-        score: 100,
-        speed: 13,
-        dropChance: 0.015,
-        floating: true,
-      };
-    case "dart":
-      return {
-        hp: 1,
-        score: 150,
-        speed: 12,
-        dropChance: 0.015,
-        floating: false,
-      };
-    case "turret":
-      return { hp: 12, score: 400, speed: 19, dropChance: 0.3, floating: true };
-    case "lancer":
-      return { hp: 4, score: 250, speed: 15, dropChance: 0.06, floating: true };
-    default:
-      return {
-        hp: 2,
-        score: 100,
-        speed: 13,
-        dropChance: 0.015,
-        floating: true,
-      };
-  }
-}
-
 export function spawnWave(scene: GameScene, t: number, wave: WaveConfig): void {
   const {
     time,
@@ -62,7 +29,6 @@ export function spawnWave(scene: GameScene, t: number, wave: WaveConfig): void {
     spacing = 64,
     interval = 10,
   } = wave;
-  const config = getEnemyConfig(kind);
 
   for (let i = 0; i < count; i++) {
     let spawnTime = time;
@@ -93,12 +59,6 @@ export function spawnWave(scene: GameScene, t: number, wave: WaveConfig): void {
         x,
         y,
         kind,
-        config.hp,
-        config.score,
-        config.speed,
-        config.dropChance,
-        config.floating,
-        false,
         x,
         i % 2 === 0 ? 1 : -1,
       );
