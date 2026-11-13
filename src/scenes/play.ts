@@ -19,7 +19,7 @@ import { Backdrop } from "./backdrop.ts";
 import { SECTORS, spawnWave } from "../route.ts";
 import { fadeOutAndSwitch } from "./fade.ts";
 
-const TICK_MS = 1000 / 60;
+const TICK_MS = 1000 / 6000;
 const START_LIVES = 3;
 const BOSS_WARNING_TICKS = 200;
 const VICTORY_TICKS = 180;
