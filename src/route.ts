@@ -1,5 +1,5 @@
 import { Enemy } from "./actors.ts";
-import type { GameScene } from "./game.ts";
+import type { PlayScene } from "./scenes/play.ts";
 
 export interface WaveConfig {
   time: number;
@@ -19,7 +19,7 @@ export interface SectorConfig {
   waves: WaveConfig[];
 }
 
-export function spawnWave(scene: GameScene, t: number, wave: WaveConfig): void {
+export function spawnWave(scene: PlayScene, t: number, wave: WaveConfig): void {
   const {
     time,
     kind,
